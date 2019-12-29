@@ -1,28 +1,44 @@
 "use strict";
-function getDogImage(numInput) {
-  if (numInput < 3) {
-    fetch("https://dog.ceo/api/breeds/image/random/3")
-      .then(response => response.json())
-      .then(responseJson => console.log(responseJson));
-  } else if (numInput > 50) {
-    return alert("Please choose a number equal or less than 50");
-  } else {
-    fetch(`https://dog.ceo/api/breeds/image/random/${numInput}`)
-      .then(response => response.json())
-      .then(responseJson => console.log(responseJson));
-  }
-}
 
-function watchUserInput() {
-  $("#dog-num-form").submit(e => {
-    e.preventDefault();
-    let userNumInput = $("#num-dog").val();
-    //Pass the number value to getDogImage
-    getDogImage(userNumInput);
+function inputListener() {
+  $("#dog-form").on("submit", function(event) {
+    $(".dog-image-results").empty();
+    event.preventDefault();
+    let dogInput = $("#dog-input").val();
+    getInput(dogInput);
   });
 }
 
+function getInput(dogInput) {
+  if (dogInput.length === 0) {
+    let userInput = 3;
+    pullDogImages(userInput);
+  } else if (dogInput > 50) {
+    alert("Please pick a number less than 50!");
+  } else if (dogInput < 1) {
+    alert("Please pick a real number!");
+  } else {
+    let userInput = dogInput;
+    pullDogImages(userInput);
+  }
+}
+
+function pullDogImages(userInput) {
+  fetch(`https://dog.ceo/api/breeds/image/random/${userInput}`)
+    .then(response => response.json())
+
+    .then(responseJson => showDogs(responseJson))
+    .catch(error => alert("Something went wrong"));
+}
+
+function showDogs(finalPulledDogImages) {
+  for (var i = 0; i < finalPulledDogImages.message.length; i++) {
+    $(".dog-image-results").append(
+      `<img src="${finalPulledDogImages.message[i]}">`
+    );
+  }
+}
+
 $(function() {
-  console.log("App loaded! Waiting for submit!");
-  watchUserInput();
+  inputListener();
 });
